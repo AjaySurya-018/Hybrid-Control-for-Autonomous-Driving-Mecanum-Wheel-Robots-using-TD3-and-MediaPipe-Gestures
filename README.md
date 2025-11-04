@@ -1,4 +1,4 @@
-# 🦾 Hybrid Control for Mecanum Robots: Navigation with TD3 & MediaPipe Gestures
+# 🦾 Hybrid Control for Autonomous Driving Mecanum-Wheel Robots using TD3 and MediaPipe Gestures
 
 A hybrid reinforcement learning and gesture-driven control system for autonomous Mecanum robots, combining Twin Delayed DDPG (TD3) with MediaPipe for efficient and intuitive warehouse navigation.
 
@@ -34,11 +34,6 @@ This project bridges the gap through a hybrid autonomy approach, combining:
 - TD3’s policy-based reinforcement learning for optimized motion planning.
 
 - MediaPipe’s vision-based gesture recognition for seamless human intervention.                            
-
-----
-
-## 🧩 System Architecture
-
 
 ----
 
@@ -91,6 +86,11 @@ MediaPipe computes **inter-landmark distances** to classify gestures, while Open
 - 📈 **Average Q-Value ↑** (stabilized after 30k steps)  
 - 🚫 **Collision Rate ↓** over training episodes  
 
+ <p align="center">
+  <img src="image (52).png" alt="" width="1000"/>
+</p>
+
+
 ---
 
 ### Core Equations
@@ -130,7 +130,7 @@ TD3 mitigates overestimation bias common in DDPG by using *clipped double Q-lear
 - ✅ Physical robot assembled using custom chassis, motor mount, and onboard camera.
 
   <p align="center">
-  <img src="97e1fbd5-4bbb-4b26-8b59-cd101058960d.jpg" alt="" width="500"/>
+  <img src="2f24c5b3-bf38-4088-82ae-4e13001be963.JPG" alt="" width="1000"/>
 </p>
 
 
@@ -145,6 +145,13 @@ TD3 mitigates overestimation bias common in DDPG by using *clipped double Q-lear
 | Avg. Q-Value         | 45.2            | 121.8          | +170%       |
 | Collision Rate       | 0.35            | 0.08           | -77%        |
 | Task Completion Time | 118s            | 63s            | -47%        |
+
+<table>
+<tr>
+<td><img src="image (53).png" width="500"/></td>
+<td><img src="image (54).png" width="500"/></td>
+</tr>
+</table>
 
 
 ----
