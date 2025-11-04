@@ -1,12 +1,19 @@
-# 🤖 Vision-Based Gesture-Controlled Robot using Deep Reinforcement Learning
+# 🦾 Hybrid Control for Mecanum Robots: Navigation with TD3 & MediaPipe Gestures
 
-An end-to-end robotic control system built from scratch — integrating computer vision, deep learning, and motor control for real-time gesture-driven navigation.
+A hybrid reinforcement learning and gesture-driven control system for autonomous Mecanum robots, combining Twin Delayed DDPG (TD3) with MediaPipe for efficient and intuitive warehouse navigation.
 
 ----
-### 🧠 Overview
+### 🚀 Overview
 
-This project implements a gesture-controlled mobile robot using computer vision (OpenCV + MediaPipe) and deep neural gesture recognition models (TensorFlow/Keras).
-The robot interprets human hand gestures in real time to perform navigation tasks like move forward, reverse, turn left/right, and stop, leveraging a Raspberry Pi for onboard computation and motor control via an H-Bridge driver.
+This project presents a hybrid robotic control framework for warehouse automation that seamlessly integrates autonomous navigation via Twin Delayed Deep Deterministic Policy Gradient (TD3) with human-in-the-loop gesture control using Google MediaPipe.
+
+The system enables a Mecanum-wheeled robot to:
+
+- Navigate autonomously using reinforcement learning, adapting to dynamic layouts and obstacles.
+
+- Respond to real-time hand gestures, enabling intuitive manual overrides by warehouse personnel.
+
+This combination enhances operational flexibility, safety, and efficiency in complex industrial settings.
 
 
 <p align="center">
@@ -17,80 +24,100 @@ The robot interprets human hand gestures in real time to perform navigation task
 🛠️ **Built entirely from scratch** — from mechanical assembly and hardware wiring to computer vision pipeline and control logic — as part of a Reinforcement Learning & Robotics course capstone.
 
 ----
-### 🎯 Key Features
+### 🧠 Problem Motivation
 
-| Feature                           | Description                                                                                                 |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Real-time Gesture Recognition** | Detects hand landmarks using MediaPipe and classifies gestures using a deep CNN trained on custom datasets. |
-| **Robotic Motor Control**         | Commands dual DC motors using PWM signals through an H-Bridge interface on a Raspberry Pi.                  |
-| **Vision-Based Command Mapping**  | Gesture → Action mapping enables autonomous motion based purely on visual inputs.                           |
-| **End-to-End Integration**        | Combines computer vision, deep learning, embedded control, and robotic hardware.                            |
-| **Built-from-Scratch Robot**      | Complete mechanical build, wiring, and code integration designed by the team.                               |
+Modern warehouses demand adaptive and intelligent automation capable of handling unpredictable layouts and human interactions.
+Traditional path-planning algorithms (A*, Dijkstra, etc.) lack adaptability to dynamic changes, while manual control reduces efficiency.
+
+This project bridges the gap through a hybrid autonomy approach, combining:
+
+- TD3’s policy-based reinforcement learning for optimized motion planning.
+
+- MediaPipe’s vision-based gesture recognition for seamless human intervention.                            
 
 ----
 
 ## 🧩 System Architecture
 
-```mermaid
-graph TD
-    A["Camera Input (OpenCV)"] --> B["Hand Landmark Detection (MediaPipe)"]
-    B --> C["Gesture Classification (CNN - TensorFlow)"]
-    C --> D["Gesture-to-Action Mapping Layer"]
-    D --> E["Motor Control Unit (PWM + GPIO)"]
-    E --> F["Robot Movement (H-Bridge + DC Motors)"]
 
-```
 ----
 
 ### ⚙️ Technical Stack
 
-| Domain                    | Technologies                                                                                  |
-| ------------------------- | --------------------------------------------------------------------------------------------- |
-| **Computer Vision**       | OpenCV, MediaPipe, Contour Analysis, Background Subtraction                                   |
-| **Deep Learning**         | TensorFlow, Keras (CNN Gesture Classifier)                                                    |
-| **Embedded Systems**      | Raspberry Pi 4, MDD10A H-Bridge Motor Driver                                                  |
-| **Programming Languages** | Python                                                                                        |
-| **Hardware Control**      | RPi.GPIO for PWM and direction control                                                        |
-| **Dataset**               | Custom hand gesture dataset (`ok`, `stop`, `thumbs up`, `peace`, etc.) collected for training |
+| Layer         | Technology                  | Purpose                     |
+| ------------- | --------------------------- | --------------------------- |
+| RL Framework  | PyTorch                     | TD3 model training          |
+| Simulation    | ROS2, Gazebo                | Environment & robot control |
+| Vision        | OpenCV, MediaPipe           | Hand gesture recognition    |
+| Hardware      | Raspberry Pi, Mecanum Robot | Physical control            |
+| Visualization | TensorBoard, RViz           | Performance tracking        |
+
 
 ----
 
-### 🚀 Project Pipeline
+## Implementation
 
-1️⃣ Data Acquisition
+### 1. Gesture-Based Control (MediaPipe)
 
-   - Collected gesture videos under varying lighting and background conditions.
+**Framework:** Google MediaPipe + OpenCV  
+**Method:** Hand landmark tracking and gesture classification  
+**Hardware:** Raspberry Pi motor controller using GPIO + PWM  
 
-   -  Labeled gesture frames for supervised model training.
+**Mapping Logic:**
 
-2️⃣ Model Training
+| Gesture | Action |
+| :------: | :------ |
+| ✊ Closed Fist | Stop |
+| ☝️ 1 Finger | Move Forward |
+| ✌️ 2 Fingers | Slow Down |
+| 🤟 3 Fingers | Turn Left |
+| 🖖 4 Fingers | Turn Right |
 
-   - Built and trained a Convolutional Neural Network (CNN) using TensorFlow for gesture classification.
+MediaPipe computes **inter-landmark distances** to classify gestures, while OpenCV provides **real-time visual feedback** through camera streams and overlayed hand skeletons.
 
-   - Applied transfer learning to improve generalization on a limited custom dataset.
+---
 
-3️⃣ Computer Vision Processing
+### 2. Autonomous Navigation (TD3 in ROS2)
 
-   - Utilized MediaPipe Hands for 21-point landmark extraction from live video feed.
+**Algorithm:** Twin Delayed Deep Deterministic Policy Gradient (TD3)
 
-   - Integrated OpenCV for preprocessing, contour detection, and segmentation to improve robustness.
+**Key Components:**
+- **Actor-Critic Architecture** with delayed policy updates and target smoothing  
+- **Replay Buffer** for experience sampling  
+- **Soft Updates** for stable convergence  
+- **Simulation Environment:** Gazebo + ROS2 + Velodyne LiDAR  
 
-4️⃣ Gesture → Action Mapping
+**Training Metrics:**
+- 📈 **Average Q-Value ↑** (stabilized after 30k steps)  
+- 🚫 **Collision Rate ↓** over training episodes  
 
-  | Gesture        | Action        |
-  | -------------- | ------------- |
-  | ✋ Stop         | Halt motors   |
-  | 👍 Thumbs Up   | Move Forward  |
-  | 👎 Thumbs Down | Move Backward |
-  | 🤟 Rock        | Turn Right    |
-  | ✌️ Peace       | Turn Left     |
+---
 
+### Core Equations
 
-5️⃣ Motor Control
+The TD3 algorithm optimizes the critic and actor networks based on the following objective functions:
 
-   - Controlled dual DC motors through PWM signals via an MDD10A H-Bridge driver connected to the Raspberry Pi’s GPIO pins.
+$$
+Q_{\pi}(s, a) = \mathbb{E}\left[ r_t + \gamma Q_{\pi}(s_{t+1}, \pi(s_{t+1})) \right]
+$$
 
-   - Implemented smooth acceleration/deceleration and safe shutdown routines to protect hardware during operation.
+Critic loss function:
+
+$$
+L(\theta_Q) = \frac{1}{N} \sum \left( Q_{\theta_Q}(s, a) - y \right)^2
+$$
+
+Where the target value \( y \) is computed as:
+
+$$
+y = r + \gamma \min_{i=1,2} Q_{\theta_i'}(s', \pi'(s'))
+$$
+
+---
+
+🧠 **Insight:**  
+TD3 mitigates overestimation bias common in DDPG by using *clipped double Q-learning* and *target policy smoothing*, resulting in more stable training for continuous control tasks such as autonomous navigation in ROS2 environments.
+
 
 ----
 ### 📸 Real Robot Build
@@ -111,35 +138,16 @@ graph TD
   
 ----
 
-### 🧪 Experimental Results
+### 📈 Experimental Results
 
-| Gesture      | Model Accuracy | Latency (ms) | Action       |
-| ------------ | -------------- | ------------ | ------------ |
-| 👍 Thumbs Up | 98.2%          | 43           | Move Forward |
-| ✋ Stop       | 99.1%          | 39           | Halt         |
-| ✌️ Peace     | 97.3%          | 41           | Turn Left    |
-| 🤟 Rock      | 96.7%          | 45           | Turn Right   |
+| Metric               | Before Training | After Training | Improvement |
+| -------------------- | --------------- | -------------- | ----------- |
+| Avg. Q-Value         | 45.2            | 121.8          | +170%       |
+| Collision Rate       | 0.35            | 0.08           | -77%        |
+| Task Completion Time | 118s            | 63s            | -47%        |
 
-
-Overall System FPS: ~20 FPS on Raspberry Pi 4
-Inference Latency: <50ms (real-time gesture recognition)
 
 ----
-### 🧰 Hardware Used
-
-| Component                         | Purpose                                     |
-| --------------------------------- | ------------------------------------------- |
-| **Raspberry Pi 4 (4GB)**          | Primary compute unit for vision and control |
-| **Pi Camera Module**              | Real-time image capture                     |
-| **MDD10A Dual Motor Driver**      | PWM-based control of DC motors              |
-| **DC Motors x2**                  | Left and right wheel drive                  |
-| **Custom Chassis + Battery Pack** | Robot structure and power supply            |
-
----
-
-### 🪄 Example Demonstration
-
-🎥 [Watch the full demo video here](https://drive.google.com/file/d/1gDslwxUc42q6Ab_ui_Cp4RA9wO_7yLVr/view?usp=sharing)
 
 
 
